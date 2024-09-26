@@ -14,20 +14,10 @@ const fs = require('fs')
 const dotenv = require('dotenv');
 dotenv.config();
 
-const allowedOrigins = [
-  'https://zaid5775.github.io',
-  'https://zaid5775.github.io/Blog'
-];
-
 app.use(cors({
-  credentials: true,
-  origin: function (origin, callback) {
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
+  origin: 'https://zaid5775.github.io/Blog', 'https://zaid5775.github.io,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // specify allowed HTTP methods
+  credentials: true, // allow cookies to be sent with requests
 }));
 
 app.use(express.json());
