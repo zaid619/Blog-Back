@@ -14,15 +14,7 @@ const fs = require('fs')
 const dotenv = require('dotenv');
 dotenv.config();
 
-
-
-app.use(cors({
-  origin: ['https://zaid5775.github.io', 'https://zaid5775.github.io/Blog', 'http://localhost:3000'], // Array of allowed origins
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
-  credentials: true, // Allow cookies to be sent with requests
-}));
-
-
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use('/uploads' , express.static(__dirname + '/uploads'))
 
@@ -119,6 +111,41 @@ app.post('/login', async (req,res) => {
       
      
   })
+
+
+
+
+  app.put('/post',uploadMiddleware.single('file'), async (req,res) => {
+    let newPath = null;
+    if (req.file) {
+      const {originalname,path} = req.file;
+      const parts = originalname.split('.');
+      const ext = parts[parts.length - 1];
+      newPath = path+'.'+ext;
+      fs.renameSync(path, newPath);
+    }
+  
+    const {token} = req.cookies;
+    jwt.verify(token, process.env.SECRET, {}, async (err,info) => {
+      if (err) throw err;
+      const {id,title,summary,content} = req.body;
+      const postDoc = await Post.findById(id);
+      const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
+      if (!isAuthor) {
+        return res.status(400).json('you are not the author');
+      }
+      await postDoc.set({
+        title,
+        summary,
+        content,
+        cover: newPath ? newPath : postDoc.cover,
+      });
+      await postDoc.save();  
+      res.json(postDoc);
+    });
+  
+  });
+
 
 
 
