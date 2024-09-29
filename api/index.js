@@ -14,7 +14,13 @@ const fs = require('fs')
 const dotenv = require('dotenv');
 dotenv.config();
 
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+app.use(cors({
+  origin: ['https://zaid5775.github.io', 'https://zaid5775.github.io/Blog', 'http://localhost:3000'], // Array of allowed origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+  credentials: true, // Allow cookies to be sent with requests
+}));
+
+
 app.use(express.json());
 app.use('/uploads' , express.static(__dirname + '/uploads'))
 
